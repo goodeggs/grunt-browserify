@@ -15,10 +15,22 @@ var watchify = require('watchify');
 module.exports = Task;
 
 function Task (grunt) {
+  var cache = {};
+  var pkgcache = {};
+
   grunt.registerMultiTask('browserify', 'Grunt task for browserify.', function () {
     var task = this;
     async.forEachSeries(this.files, function (file, next) {
-      Task.runTask(grunt, task.options(), file, next);
+      var options = task.options();
+
+      if (options.cache) {
+        options.browserifyOptions = options.browserifyOptions || {};
+        options.browserifyOptions.cache = cache;
+        options.browserifyOptions.pkgcache = pkgcache;
+        delete options.cache;
+      }
+
+      Task.runTask(grunt, options, file, next);
     }, this.async());
   });
 }
